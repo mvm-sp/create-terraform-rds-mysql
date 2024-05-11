@@ -44,6 +44,7 @@ resource "aws_security_group" "mysql_sg" {
 resource "aws_db_instance" "myinstance" {
   engine               = "mysql"
   identifier           = "posmack-tf"
+  db_name              = "posmack"
   allocated_storage    =  20
   engine_version       = "8.0.35"
   instance_class       = "db.t3.micro"
@@ -67,3 +68,4 @@ resource "aws_secretsmanager_secret_version" "db-pass-val" {
     }
   )
 }
+
