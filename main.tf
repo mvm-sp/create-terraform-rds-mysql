@@ -69,3 +69,19 @@ resource "aws_secretsmanager_secret_version" "db-pass-val" {
   )
 }
 
+locals {
+  instance_endpoint = "${element(split(":", aws_db_instance.myinstance.endpoint),0)}"
+}
+
+
+resource "null_resource" "db_setup" {
+  
+  depends_on = [aws_db_instance.myinstance, aws_security_group.mysql_sg]
+  provisioner "local-exec" {
+    command = <<EOT
+    mysql --host=${local.instance_endpoint} --port=${aws_db_instance.myinstance.port} --user=${aws_db_instance.myinstance.username} --password=${aws_db_instance.myinstance.password} < initial.sql
+    EOT
+  }
+
+}
+
