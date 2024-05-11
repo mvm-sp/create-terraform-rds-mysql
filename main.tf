@@ -7,9 +7,9 @@ provider "aws" {
 }
 
 resource "random_password" "db_root_pass" {
-  length           = 40
+  length           = 8
   special          = true
-  min_special      = 5
+  min_special      = 0
   override_special = "!#$%^&*()-_=+[]{}<>:?"
 }
 
