@@ -10,7 +10,7 @@ resource "random_password" "db_root_pass" {
   length           = 8
   special          = true
   min_special      = 0
-  override_special = "!#$%^&*()-_=+[]{}<>:?"
+  override_special = "#%^*()-_=+[]<>:?"
 }
 
 resource "random_id" "id" {
@@ -71,17 +71,48 @@ resource "aws_secretsmanager_secret_version" "db-pass-val" {
 
 locals {
   instance_endpoint = "${element(split(":", aws_db_instance.myinstance.endpoint),0)}"
+  sql_files_string = join(" ", var.sql_files)
 }
 
+/* Wnidows command example
+resource "null_resource" "db_setup" {
+  depends_on = [aws_db_instance.myinstance, aws_security_group.mysql_sg]
+  provisioner "local-exec" {
+    command = "execute_scripts.bat ${local.instance_endpoint} ${aws_db_instance.myinstance.port} ${aws_db_instance.myinstance.username} ${local.sql_files_string} >> execute_scripts.log 2>&1"
+    environment = {
+      MYSQL_PWD = "${aws_db_instance.myinstance.password}" 
+    }
+  }
+}*/
 
+/* powershell example
+resource "null_resource" "db_setup" {
+  depends_on = [aws_db_instance.myinstance, aws_security_group.mysql_sg]
+  provisioner "local-exec" {
+    command = <<EOT
+    powershell.exe -ExecutionPolicy Bypass -File execute_scripts.ps1 ${local.instance_endpoint} ${aws_db_instance.myinstance.port} ${aws_db_instance.myinstance.username} ${local.sql_files_string} >> execute_scripts.log 2>&1
+    EOT
+    environment = {
+      MYSQL_PWD = "${aws_db_instance.myinstance.password}" 
+    }
+  }
+}
+*/
+
+# /bin/bash example
 resource "null_resource" "db_setup" {
   
   depends_on = [aws_db_instance.myinstance, aws_security_group.mysql_sg]
   provisioner "local-exec" {
+    
     command = <<EOT
-    mysql --host=${local.instance_endpoint} --port=${aws_db_instance.myinstance.port} --user=${aws_db_instance.myinstance.username} --password=${aws_db_instance.myinstance.password} < initial.sql
-    EOT
+    sh execute_scripts.sh ${local.instance_endpoint} ${aws_db_instance.myinstance.port} ${aws_db_instance.myinstance.username} ${local.sql_files_string}
+    EOT    
+    environment = {
+      MYSQL_PWD = "${aws_db_instance.myinstance.password}" 
+    }
   }
 
 }
+
 
