@@ -10,7 +10,7 @@ Then:
 region = "us-east-2"
 access_key = "<YOUR AWS CONSOLE ACCESS ID>"
 secret_key = "<YOUR AWS CONSOLE SECRET KEY>"
-sql_files = [ "ìnitial.sql","inserts.sql" ]
+sql_files = [ "initial.sql","inserts.sql" ]
 ```
 * Check the aws_db_instance parameters on main.tf file
 * Run `terraform init --upgrade` command
